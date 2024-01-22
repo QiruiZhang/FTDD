@@ -11,4 +11,4 @@ This project is actively being documented. Please check back later for detailed 
 ## 4. Citation
 
 If you find FTDD useful in your research, we kindly request to cite our paper:
- - Qirui Zhang et al., "[Quantum Circuit Simulation with Fast Tensor Decision Diagram]," 2024 25th International Symposium on Quality Electronic Design (ISQED), San Francisco, CA, USA, 2024.
+ - Qirui Zhang et al., "[Quantum Circuit Simulation with Fast Tensor Decision Diagram](https://github.com/QiruiZhang/FTDD){:target="_blank"}," 2024 25th International Symposium on Quality Electronic Design (ISQED), San Francisco, CA, USA, 2024.
