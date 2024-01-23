@@ -36,6 +36,9 @@ PYBIND11_MODULE(cTDD, m) {
     .def("str", &TDD::str, py::call_guard<py::gil_scoped_release>())
     .def("node_number", &TDD::node_number, py::call_guard<py::gil_scoped_release>())
     .def("to_array", &TDD::to_array, py::call_guard<py::gil_scoped_release>())
+    .def("get_amplitude", &TDD::get_amplitude, py::call_guard<py::gil_scoped_release>())
+    .def("get_measure_prob", &TDD::get_measure_prob, py::call_guard<py::gil_scoped_release>())
+    .def("measure", &TDD::measure, py::call_guard<py::gil_scoped_release>())
     ;   
 
     // Binding Tensor in C++
@@ -83,6 +86,67 @@ PYBIND11_MODULE(cTDD, m) {
 */
 bool Edge::operator==(const Edge& other) const {
     return ((node == other.node) && (get_int_key(weight) == get_int_key(other.weight)));
+}
+
+std::complex<dataType> Edge::get_amplitude_recur(std::vector<int>& index_values) {
+    if (index_values.size() == 0) {
+        return weight;
+    }
+
+    if (index_values.size() != (((std::size_t)node->key) + 1)) {
+        index_values.erase(index_values.begin());
+        return get_amplitude_recur(index_values);
+    } else {
+        Edge temp_edge = Slicing(*this, node->key, index_values[0]);
+        index_values.erase(index_values.begin());
+        return weight * (temp_edge.get_amplitude_recur(index_values));
+    }
+}
+
+void Edge::get_measure_prob_recur() {
+    if (!node->meas_prob.empty()) {
+        return;
+    } 
+    if (node->key == -1) {
+        node->meas_prob={0.5, 0.5};
+        return;
+    }
+
+    Slicing(*this, node->key, 0).get_measure_prob_recur();
+    Slicing(*this, node->key, 1).get_measure_prob_recur();
+
+    node->meas_prob.push_back(pow(std::abs(node->edges[0].weight), 2) * (node->edges[0].node->meas_prob[0] + node->edges[0].node->meas_prob[1]) * pow(2, (node->key - node->edges[0].node->key)));
+    node->meas_prob.push_back(pow(std::abs(node->edges[1].weight), 2) * (node->edges[1].node->meas_prob[0] + node->edges[1].node->meas_prob[1]) * pow(2, (node->key - node->edges[1].node->key)));
+    return;
+}
+
+std::string Edge::measure_recur(int split_pos) {
+    std::string res, temp_res;
+    if (split_pos == -1) {
+        res = "";
+        return res;
+    } else {
+        if (split_pos != node->key) {
+            int rand_bit = dist1(gen1);
+            temp_res = measure_recur(split_pos - 1);
+            res = std::to_string(rand_bit) + temp_res;
+            return res;
+        }
+        
+        // Define a distribution to produce integers in the range [0, sum(meas_prob))
+        std::uniform_real_distribution<dataType> dist2(0, (node->meas_prob[0] + node->meas_prob[1]));
+        dataType rand_float = dist2(gen2);
+        if (rand_float < node->meas_prob[0]) {
+            Edge temp_edge = Slicing(*this, node->key, 0);
+            temp_res = temp_edge.measure_recur(split_pos - 1);
+            res = '0' + temp_res;
+        } else {
+            Edge temp_edge = Slicing(*this, node->key, 1);
+            temp_res = temp_edge.measure_recur(split_pos - 1);
+            res = '1' + temp_res;              
+        }
+    }
+    return res;
 }
 
 
@@ -135,6 +199,30 @@ complexArrayType TDD::to_array() {
 
     tdd_2_np(U_ptr, root, split_pos, std::vector<uint>(ndim, 0), 0, key_repeat_num);
     return U_ptr->vec;
+}
+
+std::complex<dataType> TDD::get_amplitude(py::list index_values) {
+    std::vector<int> index_values_;
+    for (uint k = 0; k < index_values.size(); k++) {
+        int ind = index_values[k].cast<int>();
+        index_values_.push_back(ind);
+    }
+
+    return root.get_amplitude_recur(index_values_);
+}
+
+void TDD::get_measure_prob() {
+    root.get_measure_prob_recur();
+}
+
+std::string TDD::measure() {
+    auto maxElement = std::max_element(
+        key_2_index.begin(), key_2_index.end(),
+        [](const auto& a, const auto& b) {
+            return a.first < b.first;
+        }
+    );
+    return root.measure_recur(maxElement->first);
 }
 
 

@@ -46,9 +46,11 @@ def PyTN_2_cTN(tn_lbl):
     Pick a quantum circuit for this demo 
 '''
 path = '/home/qiruizh/QCS/TDD-fork/Benchmarks/Verification/'
-file_name = "inst_4x4_10_8"
+file_name = sys.argv[1]
 cir = QuantumCircuit.from_qasm_file(path+file_name+'.qasm')
 cir.draw('mpl').savefig("./CircuitDiagrams/"+ file_name + ".png")
+
+print('\nQuantum circuit: ', file_name+'.qasm\n')
 
 
 ''' 
@@ -175,3 +177,48 @@ ctdd_ToTensor = tdd_to_tensor(ctdd.to_array(), ptdd.index_set)
 print("FTDD vs. PyTDD quantum state difference is ", np.average(np.abs(ptdd_ToTensor - ctdd_ToTensor)))
 fidelity = np.abs(np.inner(ptdd_ToTensor.flatten(), ctdd_ToTensor.flatten().conj()))
 print("FTDD vs. PyTDD fidelity is ", fidelity*100, "%")
+
+print('\n')
+
+
+''' 
+    Demo get_amplitude()
+'''
+print("Demonstrate FTDD functionality for returning probability amplitude")
+
+addr1 = [0] * 16
+addr2 = [1] * 16
+
+print("PyTDD result amplitude for addr1 is ", ptdd.get_amplitude(addr1.copy()))
+print("FTDD result amplitude for addr1 is ", ctdd.get_amplitude(addr1.copy()))
+print("PyTDD result amplitude for addr2 is ", ptdd.get_amplitude(addr2.copy()))
+print("FTDD result amplitude for addr2 is ", ctdd.get_amplitude(addr2.copy()))
+
+print('\n')
+
+
+'''
+    Demo measure()
+'''
+print("Demonstrate FTDD functionality for measuring samples")
+
+string = '0'*n
+string_int = [int(i) for i in string]
+print("Theoretical probability for measuring ", string, " is ", abs(ptdd.get_amplitude(string_int))**2)
+
+n_sample = 1000000
+
+count_ptdd = 0
+for i in range(n_sample):
+    sample_ptdd = ptdd.measure()
+    if sample_ptdd == string:
+        count_ptdd += 1
+print("PyTDD probability for measuring ", string, " is ", count_ptdd/n_sample)
+
+ctdd.get_measure_prob()
+count_ctdd = 0
+for i in range(n_sample):
+    sample_ctdd = ctdd.measure()
+    if sample_ctdd == string:
+        count_ctdd += 1
+print("FTDD probability for measuring ", string, " is ", count_ctdd/n_sample)

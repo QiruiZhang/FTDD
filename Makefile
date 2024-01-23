@@ -1,5 +1,5 @@
 demo:
-	python ./TestFTDD/DemoFTDD.py
+	python ./TestFTDD/DemoFTDD.py $(CIR)
 
 verify:
 	python ./TestFTDD/VerifyFTDD.py > ./TestFTDD/log/VerifyFTDD.log

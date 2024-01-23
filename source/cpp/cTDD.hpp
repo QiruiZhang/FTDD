@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
+#include <random>
 
 #include <string>
 #include <cmath>
@@ -61,6 +62,14 @@ uint succ_num = 2;
 // the global index order
 std::unordered_map<std::string, int> global_index_order;
 
+// Randomization
+  // Distribution 1: uniform disbribution for 0 and 1
+std::random_device rd1;
+std::mt19937 gen1(rd1());
+std::uniform_int_distribution<int> dist1(0, 1);
+  // For distribution 2: uniform distribution for [0, sum(meas_prob))
+std::random_device rd2;
+std::mt19937 gen2(rd2());
 
 /* 
     Implementation of TDD.Index in C++
@@ -112,6 +121,8 @@ public:
     std::vector<Edge> edges;
     Node* next{}; // pointer to the next node in unique table
 
+    std::vector<dataType> meas_prob;
+
     Node() {
         key = -1;
         refCnt = 0;
@@ -147,6 +158,12 @@ public:
     }
 
     bool operator==(const Edge& other) const;
+
+    std::complex<dataType> get_amplitude_recur(std::vector<int>& index_values);
+
+    void get_measure_prob_recur();
+
+    std::string measure_recur(int split_pos);
 };
 
 
@@ -184,6 +201,12 @@ public:
     int node_number();
 
     complexArrayType to_array();
+
+    std::complex<dataType> get_amplitude(py::list index_values);
+    
+    void get_measure_prob();
+
+    std::string measure();
 };
 
 
