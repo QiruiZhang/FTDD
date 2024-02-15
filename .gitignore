@@ -1,0 +1,4 @@
+/.vscode
+/source/__pycache__/
+/BenchFTDD/TestCases/__pycache__/
+/BenchQMDD/TestCases/__pycache__/
