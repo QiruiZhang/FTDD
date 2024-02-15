@@ -61,7 +61,7 @@ uniqTabConfig = [INITIAL_GC_LIMIT, INITIAL_GC_LUR, NBUCKET, ACT_NBUCKET, CCT_NBU
 
 
 ''' Verify cTDD against PyTDD and IBM Qiskit Aer '''
-path = '/home/qiruizh/QCS/TDD-fork/Benchmarks/Verification/'
+path = './Benchmarks/Verification/'
 
 # This round is for non-RQCs
 for file_name in os.listdir(path):

@@ -1,4 +1,4 @@
-path = '/home/qiruizh/QCS/TDD-fork/Benchmarks/MQTbench/'
+path = './Benchmarks/MQTbench/'
 benchmarks = []
 
 ''' Graph State '''

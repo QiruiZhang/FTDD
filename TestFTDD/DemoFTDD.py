@@ -45,7 +45,7 @@ def PyTN_2_cTN(tn_lbl):
 ''' 
     Pick a quantum circuit for this demo 
 '''
-path = '/home/qiruizh/QCS/TDD-fork/Benchmarks/Verification/'
+path = './Benchmarks/Verification/'
 file_name = sys.argv[1]
 cir = QuantumCircuit.from_qasm_file(path+file_name+'.qasm')
 cir.draw('mpl').savefig("./CircuitDiagrams/"+ file_name + ".png")
